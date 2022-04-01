@@ -13,7 +13,11 @@ export default class Database {
   async get(table, id) {
     let tablePath = path.join(this.dir, table);
     let rows = await read(tablePath);
-    return rows.find((chat) => (chat.id = id));
+    return rows.find((chat) => chat.id === id);
+  }
+  async update(table, row) {
+    await this.delete(table, row);
+    return this.insert(table, row);
   }
   async insert(table, ...rows) {
     let tablePath = path.join(this.dir, table);

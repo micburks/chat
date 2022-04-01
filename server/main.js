@@ -74,8 +74,11 @@ io.on('connection', (client) => {
   });
   client.on('join-chat', async ({id, chatId}, callback) => {
     const chat = await db.get('chat', chatId);
-    console.log(chat);
     // TODO: some process to approve joining this chat
+    await db.update('chat', {
+      ...chat,
+      members: [...chat.members, id],
+    });
     callback(true);
   });
 });
