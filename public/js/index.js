@@ -1,14 +1,25 @@
 /* eslint-env browser */
+import {io} from 'https://cdn.socket.io/4.4.1/socket.io.esm.min.js';
+const socket = io(location.host);
 
-const chat = document.getElementById('chat');
-const button = document.getElementsByTagName('button')[0];
-button.addEventListener('click', () => {
-  const rand = Math.random().toFixed(7).substring(2).toString();
-  chat.innerHTML = (chat.innerHTML || '') + ListElement(rand);
+socket.on('connect', () => {
+  console.log('connected', socket.id);
+});
+socket.on('disconnect', () => {
+  console.log('diconnected', socket.id);
 });
 
-function ListElement(text) {
-  return `
-<li class="chat-list">${text}</li>
-`;
+const container = document.getElementById('container');
+const createButton = document.getElementById('create-chat');
+
+createButton.addEventListener('click', () => {
+  socket.emit('create-chat', socket.id, (chatId) => {
+    console.log(chatId);
+    setChat(chatId);
+  });
+  createButton.hidden = true;
+});
+
+function setChat(id) {
+  container.innerHTML = `<div>chat: ${id}</div>`;
 }

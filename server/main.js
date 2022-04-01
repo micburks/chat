@@ -4,6 +4,7 @@ import {createServer} from 'http';
 import path from 'path';
 
 import {Server as staticServer} from 'node-static';
+import {Server as Socket} from 'socket.io';
 
 import renderHtml from './render.js';
 
@@ -31,7 +32,9 @@ const server = createServer(async (request, response) => {
   // server render
   if (request.url === '/') {
     response.writeHead(200, {'Content-Type': 'text/html'});
-    return response.end(await renderHtml(path.resolve('./server/templates/index.html')));
+    return response.end(
+      await renderHtml(path.resolve('./server/templates/index.html'))
+    );
   }
 
   // static file server
@@ -52,3 +55,27 @@ const server = createServer(async (request, response) => {
   const addr = server.address();
   console.log(`listening on ${addr.address}:${addr.port}`);
 });
+const io = new Socket(server);
+io.on('connection', (client) => {
+  console.log('connection');
+  client.on('event', (data) => {
+    console.log('event', data);
+  });
+  client.on('disconnect', () => {
+    console.log('disconnect');
+  });
+  client.on('create-chat', async (creatorId, callback) => {
+    const chat = createChat(creatorId);
+    callback(chat.id);
+  });
+  client.on('join-chat', async (creatorId, callback) => {
+  });
+});
+
+function createChat(creatorId) {
+  const chat = {
+    id: Math.random().toFixed(7).substring(2),
+    members: [creatorId],
+  };
+  return chat;
+}
