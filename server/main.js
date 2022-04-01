@@ -5,6 +5,8 @@ import path from 'path';
 
 import {Server as staticServer} from 'node-static';
 
+import renderHtml from './render.js';
+
 // cli args/options parsing - bootstrapped from `micburks/js`
 const args = [];
 const options = {};
@@ -26,6 +28,13 @@ const port = options.port || 8080;
 const host = '0.0.0.0';
 
 const server = createServer(async (request, response) => {
+  // server render
+  if (request.url === '/') {
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    return response.end(await renderHtml(path.resolve('./server/templates/index.html')));
+  }
+
+  // static file server
   request
     .addListener('end', function () {
       file.serve(request, response);
