@@ -40,6 +40,14 @@ const server = createServer(async (request, response) => {
       file.serve(request, response);
     })
     .resume();
+
+  // cleanup
+  function close() {
+    server.close();
+    process.exit();
+  }
+  process.on('SIGINT', close);
+  process.on('SIGTERM', close);
 }).listen(port, host, () => {
   const addr = server.address();
   console.log(`listening on ${addr.address}:${addr.port}`);
