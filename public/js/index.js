@@ -10,6 +10,7 @@ socket.on('disconnect', () => {
 });
 
 const container = document.getElementById('container');
+const chat = document.getElementById('chat');
 const createButton = document.getElementById('create-chat');
 
 createButton.addEventListener('click', () => {
@@ -22,4 +23,32 @@ createButton.addEventListener('click', () => {
 
 function setChat(id) {
   container.innerHTML = `<div>chat: ${id}</div>`;
+}
+
+chat.addEventListener('click', (e) => {
+  const chatId = e.target.dataset.id;
+  socket.emit('join-chat', {id: socket.id, chatId}, (approved) => {
+    if (approved) {
+      joinChat(chatId);
+    }
+  });
+});
+
+function joinChat(id) {
+  container.innerHTML = `
+<div>
+  chat: ${id}
+  <div id="messages"></div>
+  <div>
+    <form id="send">
+        <input type="text" name="msg" id="msg"/>
+    </form>
+  </div>
+</div>
+`;
+  document.getElementById('send').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const msg = document.getElementById('msg').value;
+    console.log(msg);
+  });
 }

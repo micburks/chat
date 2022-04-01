@@ -1,26 +1,29 @@
 import fs from 'fs';
 import path from 'path';
 
-// a file is kind of like a database...
-
 export default class Database {
   constructor() {
     this.dir = path.resolve('.data');
     ensureDir(this.dir);
   }
-  async get(table) {
+  async getAll(table) {
     let tablePath = path.join(this.dir, table);
     return read(tablePath);
   }
+  async get(table, id) {
+    let tablePath = path.join(this.dir, table);
+    let rows = await read(tablePath);
+    return rows.find((chat) => (chat.id = id));
+  }
   async insert(table, ...rows) {
     let tablePath = path.join(this.dir, table);
-    let data = read(tablePath);
+    let data = await read(tablePath);
     data = [...data, ...rows];
     return write(tablePath, data);
   }
   async delete(table, row) {
     let tablePath = path.join(this.dir, table);
-    let data = read(tablePath);
+    let data = await read(tablePath);
     data = data.filter((r) => r.id !== row.id);
     return write(tablePath, data);
   }

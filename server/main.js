@@ -7,6 +7,7 @@ import {Server as staticServer} from 'node-static';
 import {Server as Socket} from 'socket.io';
 
 import renderHtml from './render.js';
+import Database from './db.js';
 
 // cli args/options parsing - bootstrapped from `micburks/js`
 const args = [];
@@ -55,6 +56,8 @@ const server = createServer(async (request, response) => {
   const addr = server.address();
   console.log(`listening on ${addr.address}:${addr.port}`);
 });
+
+const db = new Database();
 const io = new Socket(server);
 io.on('connection', (client) => {
   console.log('connection');
@@ -66,9 +69,14 @@ io.on('connection', (client) => {
   });
   client.on('create-chat', async (creatorId, callback) => {
     const chat = createChat(creatorId);
+    await db.insert('chat', chat);
     callback(chat.id);
   });
-  client.on('join-chat', async (creatorId, callback) => {
+  client.on('join-chat', async ({id, chatId}, callback) => {
+    const chat = await db.get('chat', chatId);
+    console.log(chat);
+    // TODO: some process to approve joining this chat
+    callback(true);
   });
 });
 
