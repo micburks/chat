@@ -1,3 +1,11 @@
 #chat {
   border: 2px dashed magenta;
 }
+
+.chat-item {
+  cursor: pointer;
+}
+
+.chat-item:hover {
+  background-color: lightgray;
+}

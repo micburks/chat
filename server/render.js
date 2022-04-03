@@ -3,7 +3,7 @@ import path from 'path';
 
 // server-side render
 // - get html template
-// - replace {{path/to/module.js}} with string return from this module's default export
+// - replace {{path/to/module.js}} with string returned from this module's default export
 export default async function renderHtml(filePath) {
   let file = await fs.promises.readFile(filePath, 'utf-8');
   let match = file.match(/{{(.+)}}/);
