@@ -8,7 +8,7 @@
   "main": "server/main.js",
   "bin": "server/main.js",
   "scripts": {
-    "start": "MODE=production ./server/main.js",
+    "start": "rm -f .data/chat && ./server/main.js",
     "lint": "eslint ."
   },
   "devDependencies": {
