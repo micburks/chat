@@ -33,6 +33,10 @@ yarn start
 
 # what is next
 
+### TURN/STUN server
+- obviously this only works on a local network, would need NAT traversal for public use
+
+
 ### tests
 - the signaling server is a critical user flow, needs integration tests
 
