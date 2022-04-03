@@ -3,6 +3,8 @@
 
 for chatting
 
+https://user-images.githubusercontent.com/6025752/161440220-5e4a8b4a-3d82-40e2-9531-363a5993cc01.mov
+
 
 ## ideas
 
