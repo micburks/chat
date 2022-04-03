@@ -28,6 +28,7 @@ for (const arg of process.argv.slice(2)) {
 const file = new staticServer('./public', {cache: 0});
 const port = options.port || 8080;
 const host = '0.0.0.0';
+const db = new Database();
 
 const server = createServer(async (request, response) => {
   // server render
@@ -57,22 +58,41 @@ const server = createServer(async (request, response) => {
   console.log(`listening on ${addr.address}:${addr.port}`);
 });
 
-const db = new Database();
 const io = new Socket(server);
+const clientCache = {};
 io.on('connection', (client) => {
-  console.log('connection');
-  client.on('event', (data) => {
-    console.log('event', data);
-  });
-  client.on('disconnect', () => {
-    console.log('disconnect');
+  client.on('disconnect', async () => {
+    /*
+    const cl = Object.entries(clientCache).find(
+      ([, value]) => value === client
+    );
+    if (!cl) {
+      console.log('disconnect?');
+      return;
+    }
+    const [clientId] = cl;
+    console.log('disconnect', clientId);
+    delete clientCache[clientId];
+    const chats = await db.getAll('chat');
+    for (const chat of chats) {
+      if (chat.members.includes(clientId)) {
+        console.log('member includes', chat);
+        await db.update('chat', {
+          ...chat,
+          members: chat.members.filter((mem) => mem !== clientId),
+        });
+      }
+    }
+    */
   });
   client.on('create-chat', async (creatorId, callback) => {
+    clientCache[creatorId] = client;
     const chat = createChat(creatorId);
     await db.insert('chat', chat);
     callback(chat.id);
   });
   client.on('join-chat', async ({id, chatId}, callback) => {
+    clientCache[id] = client;
     const chat = await db.get('chat', chatId);
     // TODO: some process to approve joining this chat
     await db.update('chat', {
@@ -80,6 +100,20 @@ io.on('connection', (client) => {
       members: [...chat.members, id],
     });
     callback(true);
+  });
+  client.on('signal', async ({chatId, senderId, data}) => {
+    const chat = await db.get('chat', chatId);
+    if (!chat || !chat.members) {
+      return;
+    }
+    for (const member of chat.members) {
+      if (member === senderId) {
+        continue;
+      }
+      if (clientCache[member]) {
+        clientCache[member].emit('signal', data);
+      }
+    }
   });
 });
 
